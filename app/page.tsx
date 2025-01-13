@@ -2,8 +2,6 @@
 
 import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
-// components
-import CardBack from "./components/CardBack";
 
 const GET_POKEMON = gql`
   query PokemonSearch($limit: Int) {
