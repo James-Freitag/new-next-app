@@ -1,101 +1,131 @@
-import Image from "next/image";
+"use client";
+
+import { gql, useQuery } from "@apollo/client";
+import { useState } from "react";
+// components
+import CardBack from "./components/CardBack";
+
+const GET_POKEMON = gql`
+  query PokemonSearch($limit: Int) {
+    pokemon_v2_pokemon(limit: $limit) {
+      id
+      name
+      height
+      weight
+      pokemon_v2_pokemonsprites {
+        sprites
+      }
+      pokemon_v2_pokemonabilities {
+        pokemon_v2_ability {
+          name
+        }
+      }
+    }
+  }
+`;
+
+interface Sprites {
+  other: {
+    home: {
+      front_default: string;
+    };
+  };
+}
+interface Ability {
+  name: string;
+}
+
+interface Pokemon {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  pokemon_v2_pokemonsprites: [
+    {
+      sprites: Sprites;
+    }
+  ];
+  pokemon_v2_pokemonabilities: [
+    {
+      pokemon_v2_ability: Ability;
+    }
+  ];
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [searchTerm, setSearchTerm] = useState("");
+  const { error, loading, data } = useQuery(GET_POKEMON, {
+    variables: { limit: 151 },
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error</div>;
+
+  const handleSearch = (e: any) => {
+    setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const filteredPokemon = data.pokemon_v2_pokemon.filter((poke: Pokemon) =>
+    poke.name.toLowerCase().includes(searchTerm)
+  );
+
+  return (
+    <div>
+      <h1 className="text-4xl font-semibold text-center py-8 border-b-2">
+        Pokemon
+      </h1>
+      <div className="flex justify-center items-center py-8">
+        <input
+          type="text"
+          placeholder="Pokemon name"
+          className="border-[1px] border-black rounded-lg p-2 focus:border-none"
+          value={searchTerm}
+          onChange={handleSearch}
+        />
+      </div>
+      <div className="flex justify-center items-center py-8">
+        <ul className="grid grid-cols-1 md:grid-cols-2 px-4 lg:px-12 lg:grid-cols-3 gap-4 lg:gap-12">
+          {filteredPokemon.map((poke: Pokemon) => (
+            <li
+              key={poke.id}
+              className="py-8 px-16 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-lg transition-colors ease-in duration-150"
+            >
+              <img
+                className="mx-auto m-2"
+                src={
+                  poke.pokemon_v2_pokemonsprites[0].sprites.other.home
+                    .front_default
+                }
+                alt={poke.name}
+                width={100}
+                height={100}
+              />
+              <div className="flex flex-col max-w-1/2 mx-auto">
+                <p className="capitalize">
+                  <span className="font-bold">Name: </span>
+                  {poke.name}
+                </p>
+                <p>
+                  <span className="font-bold">Height: </span>
+                  {poke.height} dms
+                </p>
+                <p>
+                  <span className="font-semibold">Weight: </span>
+                  {poke.weight} hgs
+                </p>
+                <p>
+                  <span className="font-bold">Abilities: </span>
+                  {poke.pokemon_v2_pokemonabilities.map((ability, index) => (
+                    <span key={ability.pokemon_v2_ability.name}>
+                      {index > 0 && ", "} {ability.pokemon_v2_ability.name}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
