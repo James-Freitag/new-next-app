@@ -56,10 +56,13 @@ export default function Home() {
     variables: { limit: 151 },
   });
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
+  if (loading)
+    return (
+      <div className="text-4xl text-center py-12">Gotta Catch Em All!</div>
+    );
+  if (error) return <div>Error getting data</div>;
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
