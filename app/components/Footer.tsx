@@ -2,8 +2,8 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white text-center py-4 mt-8">
-      <div className="container mx-auto px-4">
+    <footer className=" bg-gray-800 text-white text-center py-4 mt-8">
+      <div className="mx-auto px-4">
         <p className="text-sm">
           &copy; {new Date().getFullYear()} Pokémon Search. All Rights Reserved.
         </p>
