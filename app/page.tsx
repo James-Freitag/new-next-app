@@ -58,7 +58,7 @@ export default function Home() {
 
   if (loading)
     return (
-      <div className="text-4xl text-center py-12">Gotta Catch Em All!</div>
+      <div className="text-4xl text-center py-12">Busy Catching Em All!</div>
     );
   if (error) return <div>Error getting data</div>;
 
